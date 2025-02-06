@@ -1,0 +1,6 @@
+pytsk3
+dfvfs
+pandas
+matplotlib
+plotly
+rich
