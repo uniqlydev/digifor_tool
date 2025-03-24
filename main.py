@@ -1,5 +1,5 @@
-import json
 import os
+import json
 import stat
 import argparse
 from datetime import datetime
@@ -89,9 +89,7 @@ def main():
     parser.add_argument("--end-date", help="End date (YYYY-MM-DD) to filter events")
     parser.add_argument("--file-type", help="Filter by file extension (e.g., .txt)")
     parser.add_argument("--directory", help="Filter by directory path (substring match)")
-    parser.add_argument("--output", default="forensic_timeline.csv", help="Output file name")
-    parser.add_argument("--format", choices=["json", "csv"], default="csv", help="Output file format")
-    
+    parser.add_argument("--output", default="forensic_timeline.json", help="Output file name")    
     args = parser.parse_args()
     
     # Convert start and end dates to epoch timestamps if provided.
@@ -108,14 +106,9 @@ def main():
     # Generate the forensic timeline with applied filters.
     timeline = generate_timeline(artifacts, start_epoch, end_epoch, args.file_type, args.directory)
     
-    # Output the timeline in the chosen format.
-    if args.format == "json":
-        with open(args.output, "w") as f:
-            json.dump(timeline, f, indent=4)
-    elif args.format == "csv":
-        # Use pandas to create a DataFrame and output to CSV.
-        df = pd.DataFrame(timeline)
-        df.to_csv(args.output, index=False)
+    # Output the timeline in JSON format.
+    with open(args.output, "w") as f:
+        json.dump(timeline, f, indent=4)
     
     # Mark the output file as read-only.
     os.chmod(args.output, stat.S_IREAD)
