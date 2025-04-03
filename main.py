@@ -47,27 +47,29 @@ def parse_date(date_str):
 def get_volume_offset(image_path):
     from dfvfs.resolver.context import Context
     from dfvfs.resolver import resolver
-    from dfvfs.path import os_path_spec
+    from dfvfs.path import os_path_spec, raw_path_spec
+    from dfvfs.volume import tsk_volume_system
 
     resolver_context = Context()
-    path_spec = os_path_spec.OSPathSpec(location=image_path)
-    
-    try:
-        file_entry = resolver.Resolver.OpenFileEntry(path_spec, resolver_context=resolver_context)
-    except Exception as e:
-        print(f"Error opening file entry: {e}")
-        return 0
+
+    # Step 1: OS path to the image file
+    os_spec = os_path_spec.OSPathSpec(location=image_path)
+
+    # Step 2: Wrap it in a raw path spec
+    raw_spec = raw_path_spec.RawPathSpec(parent=os_spec)
 
     try:
-        from dfvfs.volume import tsk_volume_system
+        file_object = resolver.Resolver.OpenFileObject(raw_spec, resolver_context=resolver_context)
         volume_system = tsk_volume_system.TSKVolumeSystem()
-        volume_system.Open(file_entry)
+        volume_system.Open(file_object)
         volume = volume_system.GetVolume(0)
         offset = volume.start_offset * volume_system.block_size
         return offset
     except Exception as e:
         print(f"Error retrieving volume offset: {e}")
         return 0
+
+
 
 def main():
     parser = argparse.ArgumentParser(
